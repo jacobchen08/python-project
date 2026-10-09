@@ -367,7 +367,7 @@ function Multiplayer({ settings, onSettingsChange, onProgress }) {
     <>
       <FoldingSettings id="room-settings" open={settingsOpen} settings={settings} onChange={onSettingsChange} idPrefix="mp-" />
       <div className="board-actions">
-        <p className="load-hint">Questions come from the Open Trivia Database and can take a few seconds to load.</p>
+        <p className="load-hint">Questions are drawn from a bank of about 38,000, built from OpenTriviaQA and Wikidata.</p>
         <button className="btn btn-primary" onClick={startGame} disabled={phase === 'reconnecting'}>
           {room.status === 'finished' ? 'Play again' : 'Start game'}
         </button>
@@ -522,6 +522,7 @@ function Multiplayer({ settings, onSettingsChange, onProgress }) {
           total={total}
           category={current.category}
           difficulty={current.difficulty}
+          source={current.source}
           question={current.question}
           options={current.options}
           picked={results[shownIndex]?.answer}

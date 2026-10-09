@@ -67,3 +67,26 @@ test('on a phone, the settings fold away while a round is on, so the question is
   await expect(visiblePanel(page).getByRole('button', { name: 'Hide settings' })).toBeVisible();
   await context.close();
 });
+
+test('choosing several categories mixes them in one round', async ({ page }) => {
+  await page.goto('/');
+  const panel = visiblePanel(page);
+
+  await panel.getByRole('button', { name: 'Categories: Any category' }).click();
+  await panel.getByRole('checkbox', { name: 'Geography', exact: true }).check();
+  await panel.getByRole('checkbox', { name: 'History', exact: true }).check();
+  await panel.getByRole('button', { name: 'Done' }).click();
+  await expect(panel.getByRole('button', { name: 'Categories: Geography & History' })).toBeFocused();
+
+  await panel.getByLabel('Number of questions (1–50)').fill('4');
+  await panel.getByRole('button', { name: 'Generate Questions' }).click();
+  await expect(panel.locator('.question')).toHaveText(/^Test question \d+$/);
+
+  // the round takes turns between the two (the test server's questions alternate)
+  const tags = [];
+  for (let n = 1; n <= 4; n++) {
+    tags.push(await panel.locator('.category-tag .route').textContent()); // the line badge: GEO, HIS…
+    if (n < 4) await panel.getByRole('button', { name: 'Next', exact: true }).click();
+  }
+  expect(new Set(tags)).toEqual(new Set(['GEO', 'HIS']));
+});

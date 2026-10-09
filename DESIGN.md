@@ -347,7 +347,7 @@ Physical keys on the board.
 ### Inputs / Fields
 - **Style:** 48px tile-bottom well with a 1px key-edge outline and 4px corners, 17px text at 500 weight, and a signal caret. Placeholder text is ink-faint.
 - **Focus:** hover lifts the edge to ink-faint; focus adds a 2px signal outline at 2px offset.
-- **Category select:** a route badge sits inside the left edge and a drawn chevron on the right. In Chromium the open picker becomes a small board.
+- **Category picker:** a key that shows the chosen categories' route badges and a short summary ("Any category", "Geography & History", "3 categories"), with a drawn chevron. Pressing it opens a panel set into the board like a well, never a pop-up: the categories as toggle chips grouped by line, each line with an All/Clear key. A chosen chip becomes a raised split tile with its line colour as a 3px lamp strip along its foot and a tick, so the choice never rests on colour alone. Two chips to a row on phones.
 - **Counter:** a condensed 24px number between two 48px keys.
 - **Room code:** a hidden real input laid over five flap tiles at 34px. The tile you type into next gets the signal outline.
 

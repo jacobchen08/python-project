@@ -18,7 +18,8 @@
   min-width: 0;
 
   > label,
-  > legend {
+  > legend,
+  > .field-label {
     font-family: var(--condensed);
     font-size: 13px;
     font-weight: 600;
@@ -244,6 +245,11 @@ input[type='text'] {
   gap: 7px;
   min-height: 40px;
   padding: 0 12px;
+
+  /* the narrowest phones: four difficulty positions still fit on one row */
+  @media (max-width: 400px) {
+    padding: 0 8px;
+  }
   border-radius: 3px;
   font-family: var(--condensed);
   font-size: 15px;
@@ -410,6 +416,243 @@ input[type='text'] {
   text-transform: uppercase;
   color: var(--ink-dim);
   animation: fade-only 260ms ease-out backwards;
+}
+
+/* ---------- Categories: a key that opens a route map of toggles ---------- */
+.picker-key {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px 0 10px;
+  border: 1px solid var(--key-edge);
+  border-radius: var(--radius-key);
+  background: var(--tile-bottom);
+  color: var(--ink);
+  font-size: 17px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s;
+
+  &:hover {
+    border-color: var(--ink-faint);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 2px;
+  }
+  &[aria-expanded='true'] {
+    border-color: var(--ink-dim);
+  }
+}
+
+.picker-badges {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* phones: two badges and the summary say enough; the rest would squeeze the words out */
+@media (max-width: 640px) {
+  .picker-badges > .route:nth-child(n + 3),
+  .picker-more {
+    display: none;
+  }
+}
+
+.picker-more {
+  font-family: var(--condensed);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-dim);
+}
+
+.picker-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.picker-chevron {
+  flex: none;
+  color: var(--ink-dim);
+  transition: transform 320ms var(--ease-settle);
+
+  &.is-open {
+    transform: rotate(180deg);
+  }
+}
+
+/* the open panel spans the whole settings grid, set into the board like a well */
+.category-panel {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin: 0;
+  padding: 18px;
+  border: 1px solid var(--key-edge);
+  border-radius: 5px;
+  background: var(--well);
+  animation: settle-down 280ms var(--ease-settle) backwards;
+
+  @media (max-width: 640px) {
+    padding: 14px;
+  }
+}
+
+.category-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+
+.category-panel-hint {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink-dim);
+}
+
+.category-group-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.category-group-name {
+  flex: 1;
+  font-family: var(--condensed);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.category-group-all {
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--key-edge);
+  border-radius: var(--radius-key);
+  background: transparent;
+  color: var(--ink-dim);
+  font-family: var(--condensed);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--ink);
+    border-color: var(--ink-faint);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 2px;
+  }
+}
+
+.category-chips {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 6px;
+
+  /* phones: two to a row, so the whole map fits in a few thumb-scrolls */
+  @media (max-width: 640px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    .category-chip {
+      gap: 7px;
+      padding: 0 8px 0 6px;
+      font-size: 14px;
+    }
+  }
+}
+
+/* one category: off is a dim row; on is a raised tile with its line colour as a lamp strip
+   along the foot, and a tick, so the choice never rests on colour alone */
+.category-chip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 12px 0 8px;
+  border: 1px solid var(--key-edge);
+  border-radius: var(--radius-key);
+  background: var(--row);
+  color: var(--ink-dim);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.25;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+  input {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  /* a long name breaks onto a second line (hyphenated if it must) rather than spilling out */
+  > span:not(.route) {
+    min-width: 0;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+  &:hover {
+    color: var(--ink);
+    border-color: var(--ink-faint);
+  }
+  &:has(input:focus-visible) {
+    outline: 2px solid var(--signal);
+    outline-offset: 1px;
+  }
+  &.is-on {
+    background: linear-gradient(to bottom, var(--tile-top) 50%, var(--tile-bottom) 50%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 1px 2px rgba(0, 0, 0, 0.6);
+    color: var(--ink);
+    font-weight: 600;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: auto 6px 3px;
+      height: 3px;
+      border-radius: 2px;
+      background: var(--line);
+    }
+  }
+}
+
+.category-check {
+  flex: none;
+  margin-left: auto;
+  color: var(--ink);
+}
+
+.category-panel-foot {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .category-panel {
+    animation-name: fade-only;
+  }
+  .picker-chevron {
+    transition: none;
+  }
 }
 
 /* the board has less to say when folded, so its actions sit closer */

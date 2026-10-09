@@ -40,7 +40,7 @@ export function needsRefill(now = Date.now()) {
 export async function refillPack() {
   if (!navigator.onLine || !needsRefill()) return false;
   try {
-    const response = await fetch(apiUrl(`/api/questions?amount=${PACK_SIZE}`));
+    const response = await fetch(apiUrl(`/api/questions?amount=${PACK_SIZE}&refill=true`));
     const data = await response.json();
     if (!Array.isArray(data) || data.length === 0) return false;
     // keep any saved questions that are still unplayed, add the new ones, drop duplicates
@@ -57,7 +57,8 @@ export async function refillPack() {
 }
 
 function matches(question, settings) {
-  if (settings.category && question.category !== categoryById(settings.category).name) return false;
+  const wanted = settings.categories ?? [];
+  if (wanted.length && !wanted.some((id) => question.category === categoryById(id).name)) return false;
   if (settings.difficulty && question.difficulty !== settings.difficulty) return false;
   if (settings.type && question.type !== settings.type) return false;
   return true;

@@ -17,7 +17,7 @@ In solo mode you pick settings and play. In multiplayer, one person creates a ro
 ## Operating Context
 - Three modes as tabs: Solo, Daily and Multiplayer. All stay mounted, so switching tabs doesn't lose progress.
 - Multiplayer flow: enter a name, then create or join a room. The room creator is the host and picks the settings. Everyone gets the same questions and answers at their own pace, and a live leaderboard shows scores and progress. The final results name the winner or winners, and the host can start another round.
-- Questions come from the Open Trivia Database (via `backend/trivia.py`), so the question text, categories, and difficulty levels are external data.
+- Questions come from a bank of about 38,000 stored with the server (`backend/data/`), built from OpenTriviaQA and Wikidata by `backend/scripts/question_bank/`. Each category holds more or fewer questions according to how popular it's likely to be (2,000 for broad topics such as Film or History, down to 800 for Board Games). Open Trivia DB's live API supplies the daily challenge and fills in when the bank can't meet a quiz's settings; its questions are never stored.
 
 ## Capabilities and Constraints
 - Stack: React 19 + Vite frontend (`frontend/`) and a FastAPI backend (`backend/`) with WebSockets for rooms. On Render's free plan (`render.yaml`) the frontend is a static site and the API a separate Docker service.

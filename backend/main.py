@@ -22,7 +22,7 @@ import logs
 from daily import router as daily_router
 from multiplayer import router as multiplayer_router
 from ratelimit import RateLimiter, limited
-from trivia import TriviaError, fetch_questions
+from trivia import TriviaError, fetch_questions, parse_categories
 
 logs.configure()
 app = FastAPI(title="Quizzr API")
@@ -70,8 +70,13 @@ questions_limit = RateLimiter(limit=20, window=60)
 
 
 # Returns questions to the frontend, e.g. /api/questions?amount=10&category=9&difficulty=easy&type=multiple
+# (category can list several, comma-separated: category=22,23)
 @app.get("/api/questions", dependencies=[Depends(limited(questions_limit))])
-def get_questions(amount: int = 10, category: str = "all", difficulty: str = "all", type: str = "all"):
+def get_questions(amount: int = 10, category: str = "all", difficulty: str = "all", type: str = "all", refill: bool = False):
+    # Which categories people choose, to learn which are popular (nothing about who chose them).
+    # The browser topping up its offline pack (refill=true) isn't a round anyone chose.
+    if not refill:
+        logs.log_event("round_requested", mode="solo", categories=parse_categories(category) or ["any"], amount=amount)
     try:
         return fetch_questions(amount, category, difficulty, type)
     except TriviaError as e:

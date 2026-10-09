@@ -106,7 +106,7 @@ def todays_questions(date):
             if questions is not None:
                 return questions
         try:
-            raw = fetch_questions(DAILY_QUESTIONS)
+            raw = fetch_questions(DAILY_QUESTIONS, source="opentdb")  # everyone plays these: Open Trivia DB's verified questions
         except TriviaError as e:
             raise HTTPException(status_code=502, detail=str(e)) from e
         questions = [prepare_question(q) for q in raw]

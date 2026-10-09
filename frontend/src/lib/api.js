@@ -16,7 +16,7 @@ export function apiUrl(path) {
 export function questionsUrl(settings) {
   const params = new URLSearchParams({
     amount: clampAmount(settings.amount),
-    category: settings.category || 'all',
+    category: settings.categories?.length ? settings.categories.join(',') : 'all', // e.g. "22,23"
     difficulty: settings.difficulty || 'all',
     type: settings.type || 'all',
   });

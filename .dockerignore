@@ -6,3 +6,4 @@ database
 backend/tests
 **/.pytest_cache
 **/*.db
+backend/data/sources

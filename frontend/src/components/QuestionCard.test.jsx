@@ -63,6 +63,16 @@ describe('QuestionCard', () => {
     expect(screen.getByText('Streak: 3 in a row')).toBeInTheDocument();
   });
 
+  it('marks questions from the question bank, and only those', () => {
+    const { rerender } = renderCard({ source: 'bank' });
+    expect(screen.getByText('Bank')).toBeInTheDocument();
+    rerender(
+      <QuestionCard index={0} total={3} category="History" difficulty="medium" question="Q" options={['A', 'B']}
+        score={0} marks={[]} source="opentdb" onAnswer={() => {}} onPrevious={() => {}} onNext={() => {}} onJump={() => {}} />
+    );
+    expect(screen.queryByText('Bank')).not.toBeInTheDocument();
+  });
+
   it('offers the finish action in place of Next when the round is done', async () => {
     const user = userEvent.setup();
     const onClick = vi.fn();

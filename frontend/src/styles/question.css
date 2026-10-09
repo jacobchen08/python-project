@@ -109,6 +109,26 @@
   color: var(--ink-dim);
 }
 
+/* difficulty, with a small tag beside it when the question comes from Quizzr's own bank */
+.question-meta-end {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.source-tag {
+  margin: 0;
+  padding: 2px 7px;
+  border: 1px solid var(--key-edge);
+  border-radius: var(--radius-key);
+  font-family: var(--condensed);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
 .question {
   max-width: 34em;
   margin: 0 0 26px;

@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/jacobchen08/Quiz-App/actions/workflows/ci.yml/badge.svg?branch=app-prototype-v2)](https://github.com/jacobchen08/Quiz-App/actions/workflows/ci.yml)
 
-A trivia game styled like a train station departure board. You can play on your own, take a daily challenge where everyone gets the same ten questions, or start a room and play live with friends. Questions come from the [Open Trivia Database](https://opentdb.com/).
+A trivia game styled like a train station departure board. You can play on your own, take a daily challenge where everyone gets the same ten questions, or start a room and play live with friends. It has a bank of about 38,000 questions across 24 categories, built from [OpenTriviaQA](https://github.com/uberspot/OpenTriviaQA) and [Wikidata](https://www.wikidata.org), and uses the [Open Trivia Database](https://opentdb.com/) for the daily challenge.
 
 The frontend is React and Vite. The backend is FastAPI, with WebSockets for the multiplayer rooms.
 
@@ -20,7 +20,7 @@ Built with assistance from Claude Code
 
 ## Features
 
-- **Solo:** 1 to 50 questions, with optional filters for category, difficulty and question type, and an optional timer. At the end you see the questions you missed and get a result you can share.
+- **Solo:** 1 to 50 questions from one or more categories, with optional filters for difficulty and question type, and an optional timer. At the end you see the questions you missed and get a result you can share.
 - **Daily:** the same ten questions for everyone, once a day (the day changes at midnight UTC). The leaderboard sorts by correct answers, then time.
 - **Multiplayer:** create a room and send friends the code or invite link. A right answer is worth 100 points, plus up to 50 more for speed. With a timer on, everyone answers each question at the same time.
 
@@ -39,16 +39,20 @@ flowchart LR
         R["/api/rooms + /api/ws/{code}<br/>(WebSocket rooms, in memory)"]
     end
     DB[(Postgres<br/>or SQLite in dev)]
+    BANK[(Question bank<br/>38,000 questions)]
     OTDB[Open Trivia DB]
 
     UI -- HTTPS --> Q
     UI -- HTTPS --> D
     UI <-- WebSocket --> R
-    Q --> OTDB
+    Q --> BANK
+    R --> BANK
+    Q -. fallback .-> OTDB
     D --> OTDB
-    R --> OTDB
     D --> DB
 ```
+
+Solo and multiplayer questions come from a question bank stored with the server (`backend/data/questions.json.gz`), so a round starts instantly and can mix any number of categories. The bank is built by a script from two openly licensed sources: OpenTriviaQA's hand-written questions, filtered and lightly repaired, and questions generated from Wikidata's facts, plus number trivia worked out by the script for Mathematics. Categories hold more questions the more popular they're likely to be (2,000 for General Knowledge or Film, 800 for Board Games), so a round on "any category" leans towards the popular ones. Open Trivia DB's live API is the fallback when the bank can't meet a quiz's settings, and it supplies the daily challenge. Its questions are never stored.
 
 Solo play only needs the server to fetch questions. Answers are checked in the browser, since you're only playing against yourself.
 
@@ -59,6 +63,7 @@ A few design choices worth explaining:
 - When a player's connection drops without them leaving, the server holds their seat for 90 seconds. The browser keeps a token for that tab and uses it to rejoin. Without this, a phone switching apps for a moment would knock someone out of the game.
 - Timed games run on the server's clock. Every update includes the server's current time, so each browser can count down to the same deadline, and answers that arrive too late are refused.
 - There are no accounts. The daily challenge identifies you with a random token saved in your browser. Clearing your storage would give you a second attempt, which seemed like a fair trade for not making anyone sign up.
+- Questions generated from Wikidata could easily read like a form ("Who painted X?" a thousand times). Each item can be asked about in several ways (forwards, backwards, as true or false, by decade), clues combine two or three facts ("Rembrandt's 1642 painting, now in the Rijksmuseum…"), wrong answers are picked from the same era or country so they're plausible, and how well known the item is sets the difficulty. A final check throws out any question that gives away its own answer.
 - A daily run started just before midnight can still be finished after it. The browser sends the date the run started with each answer, and the server accepts it if that's today or yesterday.
 
 ## Running it locally
@@ -117,7 +122,10 @@ The [`Dockerfile`](Dockerfile) can also run everything as a single service, with
 ```
 backend/
   main.py           creates the FastAPI app and registers the routes
-  trivia.py         fetches questions from Open Trivia DB
+  trivia.py         decides where questions come from; talks to Open Trivia DB
+  question_bank.py  draws questions from the bank
+  data/             the question bank, and where its sources and licences are listed
+  scripts/question_bank/  builds the bank from OpenTriviaQA and Wikidata
   multiplayer.py    multiplayer rooms over WebSockets
   daily.py          the daily challenge and its leaderboard
   database.py       Postgres or SQLite connections
@@ -141,4 +149,4 @@ docs/               screenshots for this README
 
 ## Credits
 
-Questions come from the [Open Trivia Database](https://opentdb.com/) under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). The typeface is [Sofia Sans](https://github.com/lettersoup/Sofia-Sans), under the SIL Open Font License.
+Questions come from [OpenTriviaQA](https://github.com/uberspot/OpenTriviaQA) and the [Open Trivia Database](https://opentdb.com/), both under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), and from facts in [Wikidata](https://www.wikidata.org) (public domain). The question bank is shared under CC BY-SA 4.0; see [`backend/data/README.md`](backend/data/README.md). The typeface is [Sofia Sans](https://github.com/lettersoup/Sofia-Sans), under the SIL Open Font License.

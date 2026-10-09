@@ -5,7 +5,7 @@ export const categories = [
   { id: 10, name: 'Entertainment: Books', code: 'BKS', line: 'magenta' },
   { id: 11, name: 'Entertainment: Film', code: 'FLM', line: 'magenta' },
   { id: 12, name: 'Entertainment: Music', code: 'MUS', line: 'magenta' },
-  { id: 13, name: 'Entertainment: Musicals and Theaters', code: 'THR', line: 'magenta' },
+  { id: 13, name: 'Entertainment: Musicals & Theatres', code: 'THR', line: 'magenta' },
   { id: 14, name: 'Entertainment: Television', code: 'TV', line: 'magenta' },
   { id: 15, name: 'Entertainment: Video Games', code: 'VG', line: 'magenta' },
   { id: 16, name: 'Entertainment: Board Games', code: 'BRD', line: 'magenta' },
@@ -42,6 +42,13 @@ export function categoryByName(name) {
 // (The full name stays in the data, because Open Trivia DB uses it to identify the category.)
 export function categoryLabel(name) {
   return String(name ?? '').replace(/^(Entertainment|Science): /, '');
+}
+
+// A choice of categories in a few words: "Any category", one name, two names, or a count
+export function categoriesSummary(ids) {
+  if (!ids?.length) return 'Any category';
+  const labels = ids.map((id) => categoryLabel(categoryById(id).name));
+  return labels.length <= 2 ? labels.join(' & ') : `${labels.length} categories`;
 }
 
 // Difficulty levels: a line colour plus a count of pips, so it never relies on colour alone

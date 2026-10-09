@@ -72,6 +72,7 @@ function QuestionCard({
   total,
   category,
   difficulty,
+  source,
   question,
   options,
   picked,
@@ -224,12 +225,21 @@ function QuestionCard({
                 {categoryLabel(category)}
               </p>
             )}
-            {level && (
-              <p className="difficulty-tag">
-                <Pips count={level.pips} accent={level.accent} />
-                <span className="sr-only">Difficulty: </span>
-                {level.label}
-              </p>
+            {(level || source === 'bank') && (
+              <div className="question-meta-end">
+                {source === 'bank' && (
+                  <p className="source-tag" title="From Quizzr's own question bank">
+                    <span className="sr-only">Source: </span>Bank
+                  </p>
+                )}
+                {level && (
+                  <p className="difficulty-tag">
+                    <Pips count={level.pips} accent={level.accent} />
+                    <span className="sr-only">Difficulty: </span>
+                    {level.label}
+                  </p>
+                )}
+              </div>
             )}
           </div>
         )}

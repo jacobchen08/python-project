@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisco
 
 import logs
 from ratelimit import RateLimiter, limited
-from trivia import TriviaError, fetch_questions, prepare_question, public_question
+from trivia import TriviaError, fetch_questions, parse_categories, prepare_question, public_question
 
 # Multiplayer flow:
 # 1. POST /api/rooms creates a room and returns its code.
@@ -76,7 +76,7 @@ def speed_bonus(elapsed):
 
 # ---------- Settings the host chooses ----------
 
-DEFAULT_SETTINGS = {"amount": 10, "category": "", "difficulty": "", "type": "", "timer": ""}
+DEFAULT_SETTINGS = {"amount": 10, "categories": [], "difficulty": "", "type": "", "timer": ""}
 
 
 def timer_setting(settings):
@@ -95,13 +95,14 @@ def clean_settings(settings):
         amount = max(1, min(int(settings.get("amount")), 50))
     except (TypeError, ValueError):
         amount = DEFAULT_SETTINGS["amount"]
-    category = str(settings.get("category") or "")
+    # a list of category ids; older browsers send one "category" instead
+    categories = parse_categories(settings.get("categories") if "categories" in settings else settings.get("category"))
     difficulty = settings.get("difficulty") or ""
     qtype = settings.get("type") or ""
     timer = timer_setting(settings)
     return {
         "amount": amount,
-        "category": category if category.isdigit() and 9 <= int(category) <= 32 else "",
+        "categories": categories,
         "difficulty": difficulty if difficulty in ("easy", "medium", "hard") else "",
         "type": qtype if qtype in ("multiple", "boolean") else "",
         "timer": str(timer) if timer else "",
@@ -397,7 +398,7 @@ async def start_game(room, settings):
         raw = await asyncio.to_thread(
             fetch_questions,
             settings.get("amount", 10),
-            settings.get("category") or "all",
+            ",".join(settings.get("categories") or []) or "all",
             settings.get("difficulty") or "all",
             settings.get("type") or "all",
         )
@@ -417,7 +418,12 @@ async def start_game(room, settings):
         player.reset()
     room.status = "playing"
     logs.log_event(
-        "game_started", code=room.code, players=len(room.players), questions=len(room.questions), timer=room.time_limit
+        "game_started",
+        code=room.code,
+        players=len(room.players),
+        questions=len(room.questions),
+        timer=room.time_limit,
+        categories=settings.get("categories") or ["any"],
     )
     await room.broadcast(room.questions_message())
     if room.time_limit:

@@ -280,6 +280,7 @@ function Daily({ onProgress }) {
             total={questions.length}
             category={current.category}
             difficulty={current.difficulty}
+            source={current.source}
             question={current.question}
             options={current.options}
             picked={results[currentIndex]?.answer}

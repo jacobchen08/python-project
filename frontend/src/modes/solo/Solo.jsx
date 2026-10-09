@@ -186,7 +186,7 @@ function Solo({ settings, onSettingsChange, onProgress }) {
           <div className="board-actions">
             <p className="load-hint">
               {online
-                ? 'Questions come from the Open Trivia Database and can take a few seconds to load.'
+                ? 'Questions are drawn from a bank of about 38,000, built from OpenTriviaQA and Wikidata.'
                 : 'Offline: questions come from the ones saved in this browser.'}
             </p>
             {/* yellow marks the one thing to do now: only before there are questions */}
@@ -250,6 +250,7 @@ function Solo({ settings, onSettingsChange, onProgress }) {
             total={total}
             category={current.category}
             difficulty={current.difficulty}
+            source={current.source}
             question={current.question}
             options={current.options}
             picked={answers[currentIndex]}

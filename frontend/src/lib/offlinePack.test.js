@@ -15,7 +15,7 @@ function savePack(questions, savedAt = Date.now()) {
   localStorage.setItem('quizzr-offline-pack', JSON.stringify({ savedAt, questions }));
 }
 
-const settings = (extra = {}) => ({ amount: 3, category: '', difficulty: '', type: '', timer: '', ...extra });
+const settings = (extra = {}) => ({ amount: 3, categories: [], difficulty: '', type: '', timer: '', ...extra });
 
 describe('the offline question pack', () => {
   beforeEach(() => localStorage.clear());
@@ -38,8 +38,18 @@ describe('the offline question pack', () => {
       question(2, { category: 'Geography', difficulty: 'easy' }),
       question(3, { category: 'History', difficulty: 'hard' }),
     ]);
-    const dealt = dealFromPack(settings({ amount: 1, category: '22', difficulty: 'hard' })); // 22 = Geography
+    const dealt = dealFromPack(settings({ amount: 1, categories: ['22'], difficulty: 'hard' })); // 22 = Geography
     expect(dealt.map((q) => q.question)).toEqual(['Question 1']);
+  });
+
+  it('deals from any of several chosen categories', () => {
+    savePack([
+      question(1, { category: 'Geography' }),
+      question(2, { category: 'History' }),
+      question(3, { category: 'Art' }),
+    ]);
+    const dealt = dealFromPack(settings({ amount: 2, categories: ['22', '23'] })); // Geography, History
+    expect(dealt.map((q) => q.category).sort()).toEqual(['Geography', 'History']);
   });
 
   it('explains when there are too few matching questions, and keeps the pack intact', () => {

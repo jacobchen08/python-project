@@ -1,7 +1,8 @@
-// Quiz settings shared by solo and multiplayer: how many questions, which category,
-// difficulty and type, and the time per question ('' means "any" or "off").
+// Quiz settings shared by solo and multiplayer: how many questions, which categories (a list
+// of Open Trivia DB category ids; empty means any), the difficulty and type, and the time per
+// question ('' means "any" or "off").
 
-export const DEFAULT_SETTINGS = { amount: 10, category: '', difficulty: '', type: '', timer: '' };
+export const DEFAULT_SETTINGS = { amount: 10, categories: [], difficulty: '', type: '', timer: '' };
 
 export const MIN_QUESTIONS = 1;
 export const MAX_QUESTIONS = 50; // Open Trivia DB hands out at most 50 at a time

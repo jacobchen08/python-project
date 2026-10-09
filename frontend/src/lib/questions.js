@@ -20,13 +20,14 @@ export function shuffle(list) {
   return copy;
 }
 
-// One Open Trivia DB question, ready to play: { question, category, difficulty, correct, options }
+// One question in Open Trivia DB's shape, ready to play: { question, category, difficulty, source, correct, options }
 export function toQuestion(item) {
   const correct = decodeHtml(item.correct_answer);
   return {
     question: decodeHtml(item.question),
     category: decodeHtml(item.category),
     difficulty: item.difficulty,
+    source: item.source,
     correct,
     options:
       item.type === 'multiple'

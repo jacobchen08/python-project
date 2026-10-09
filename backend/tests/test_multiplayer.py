@@ -212,16 +212,16 @@ def test_the_hosts_settings_are_shared_with_the_room(client):
             join(guest, "Bob")
             host.send_json({
                 "type": "settings",
-                "settings": {"amount": "99", "category": "23", "difficulty": "hard", "type": "essay", "timer": "20"},
+                "settings": {"amount": "99", "categories": ["23", "22", "99", "23"], "difficulty": "hard", "type": "essay", "timer": "20"},
             })
-            shared = receive_state_where(guest, lambda s: s["settings"]["category"] == "23")["settings"]
+            shared = receive_state_where(guest, lambda s: s["settings"]["categories"] == ["23", "22"])["settings"]
             # a guest can't change them
             guest.send_json({"type": "settings", "settings": {"amount": 1}})
             host.send_json({"type": "settings", "settings": {**shared, "difficulty": "easy"}})
             latest = receive_state_where(guest, lambda s: s["settings"]["difficulty"] == "easy")["settings"]
 
     # out-of-range and unknown values are cleaned up before anyone sees them
-    assert shared == {"amount": 50, "category": "23", "difficulty": "hard", "type": "", "timer": "20"}
+    assert shared == {"amount": 50, "categories": ["23", "22"], "difficulty": "hard", "type": "", "timer": "20"}
     assert latest["amount"] == 50
 
 
@@ -268,3 +268,8 @@ def test_an_answer_that_isnt_text_is_marked_wrong_not_crashed_on(client):
         ws.send_json({"type": "answer", "index": 0, "answer": {"not": "text"}})
         result = receive_until(ws, "answer_result")
     assert result["correct"] is False and isinstance(result["answer"], str)
+
+
+def test_a_single_category_from_an_older_browser_still_counts():
+    assert multiplayer.clean_settings({"category": "23"})["categories"] == ["23"]
+    assert multiplayer.clean_settings({"category": ""})["categories"] == []

@@ -14,3 +14,6 @@ frontend/playwright-report/
 
 # design review working files  
 .impeccable/review/
+
+# question bank downloads (rebuilt by backend/scripts/question_bank/build.py)
+backend/data/sources/

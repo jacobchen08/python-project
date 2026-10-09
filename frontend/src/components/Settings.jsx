@@ -1,15 +1,12 @@
 import { useRef } from 'react';
 import Icon from './Icon';
-import RouteBadge from './RouteBadge';
+import CategoryPicker from './CategoryPicker';
 import useIndicator from '../hooks/useIndicator';
-import { categories, categoryById, categoryLabel, difficulties } from '../lib/categories';
+import { categoriesSummary, difficulties } from '../lib/categories';
 import { clampAmount, MAX_QUESTIONS, MIN_QUESTIONS } from '../lib/settings';
 import Pips from './Pips';
 
 const difficultyOptions = [{ value: '', label: 'Any' }, ...difficulties];
-
-// Listed A–Z in the picker ("Any Category" stays first)
-const sortedCategories = [...categories].sort((a, b) => categoryLabel(a.name).localeCompare(categoryLabel(b.name)));
 
 // Seconds per question. Off (the default) means take as long as you like.
 const timers = [
@@ -55,10 +52,8 @@ function Switch({ legend, name, options, value, onChange }) {
   );
 }
 
-// Number of questions, category, difficulty and question type
+// Number of questions, categories, difficulty, question type and time per question
 function Settings({ settings, onChange, idPrefix = '' }) {
-  const category = categoryById(settings.category);
-
   function update(key, value) {
     onChange({ ...settings, [key]: value });
   }
@@ -90,19 +85,7 @@ function Settings({ settings, onChange, idPrefix = '' }) {
         </div>
       </div>
 
-      <div className="field">
-        <label htmlFor={`${idPrefix}category`}>Category</label>
-        <div className="select-wrap">
-          <RouteBadge code={category.code} line={category.line} />
-          <select id={`${idPrefix}category`} value={settings.category} onChange={(e) => update('category', e.target.value)}>
-            <option value="">Any Category</option>
-            {sortedCategories.map((c) => (
-              <option key={c.id} value={c.id}>{categoryLabel(c.name)}</option>
-            ))}
-          </select>
-          <Icon name="chevron-down" className="select-chevron" />
-        </div>
-      </div>
+      <CategoryPicker value={settings.categories} onChange={(value) => update('categories', value)} idPrefix={idPrefix} />
 
       <Switch
         legend="Difficulty"
@@ -142,7 +125,7 @@ export function SettingsLine({ settings }) {
   const timer = settings.timer ? `${settings.timer} sec per question` : 'No time limit';
   return (
     <p className="settings-line">
-      {[`${amount} question${amount === 1 ? '' : 's'}`, categoryLabel(categoryById(settings.category).name), difficulty, type, timer].join(' · ')}
+      {[`${amount} question${amount === 1 ? '' : 's'}`, categoriesSummary(settings.categories), difficulty, type, timer].join(' · ')}
     </p>
   );
 }
@@ -176,7 +159,7 @@ export function FoldingSettings({ id, open, settings, onChange, idPrefix }) {
 export function SettingsSummary({ settings }) {
   const rows = [
     ['Questions', settings.amount],
-    ['Category', categoryLabel(categoryById(settings.category).name)],
+    ['Categories', categoriesSummary(settings.categories)],
     ['Difficulty', optionLabel(difficultyOptions, settings.difficulty)],
     ['Question type', optionLabel(types, settings.type)],
     ['Time per question', optionLabel(timers, settings.timer)],
